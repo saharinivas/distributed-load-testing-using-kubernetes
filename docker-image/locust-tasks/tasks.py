@@ -10,7 +10,7 @@ headers = {
 user_emails= []
 
 
-with open('bulk_users.txt','r') as file:
+with open('/locust-tasks/bulk_users.txt','r') as file:
 	user_emails = file.read().split(",")
 
 
