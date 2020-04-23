@@ -1,42 +1,28 @@
-#!/usr/bin/env python
-
-# Copyright 2015 Google Inc. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
+import csv
+import time
+from random import randrange
 
 
-import uuid
+headers = {
+'Content-Type': 'application/json',
+'Cookie': 'PHPSESSID=gpsi2or2l71vfo4v6qmu8gqet0; PHPSESSID=gpsi2or2l71vfo4v6qmu8gqet0; AWSALB=KbJK/T8knVZNFpTcX25QRdRnfxq+l9pYzy0TiVql1sDAg9FKnSOhE4NwHjqbAmyUD05Czlzf4OJBZnYrsUsx2P+AekuTVrrhBxvYlG0BycIDzpiZ8sMM3isblodU; AWSALBCORS=KbJK/T8knVZNFpTcX25QRdRnfxq+l9pYzy0TiVql1sDAg9FKnSOhE4NwHjqbAmyUD05Czlzf4OJBZnYrsUsx2P+AekuTVrrhBxvYlG0BycIDzpiZ8sMM3isblodU'
+}
 
-from datetime import datetime
-from locust import HttpLocust, TaskSet, task
-
-
-class MetricsTaskSet(TaskSet):
-    _deviceid = None
-
-    def on_start(self):
-        self._deviceid = str(uuid.uuid4())
-
-    @task(1)
-    def login(self):
-        self.client.post(
-            '/login', {"deviceid": self._deviceid})
-
-    @task(999)
-    def post_metrics(self):
-        self.client.post(
-            "/metrics", {"deviceid": self._deviceid, "timestamp": datetime.now()})
+user_emails= []
 
 
-class MetricsLocust(HttpLocust):
-    task_set = MetricsTaskSet
+with open('bulk_users.txt','r') as file:
+	user_emails = file.read().split(",")
+
+
+class MyTaskSequence(TaskSequence):
+    @seq_task(1)
+    def student_login(self):
+    	data = {"partner_id": "educationgoa", "email": user_emails[randrange(50000)]} 
+    	response = self.client.post(url="/apis/student_login.php",data=data,auth=None,headers=headers)
+
+
+class WebsiteTest(HttpLocust):
+    task_set = MyTaskSequence
+    wait_time = between(1, 5)
