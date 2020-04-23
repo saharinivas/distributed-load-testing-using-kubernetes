@@ -1,6 +1,4 @@
 from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
-import csv
-import time
 from random import randrange
 
 
