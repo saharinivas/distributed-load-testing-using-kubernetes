@@ -9,9 +9,11 @@ headers = {
 
 user_emails= []
 
-
-with open('/locust-tasks/bulk_users.txt','r') as file:
-	user_emails = file.read().split(",")
+try:
+    with open('/locust-tasks/bulk_users.txt','r') as file:
+        user_emails = file.read().split(",")
+except:
+    pass
 
 
 class MyTaskSequence(TaskSequence):
