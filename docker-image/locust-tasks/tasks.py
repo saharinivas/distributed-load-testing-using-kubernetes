@@ -1,4 +1,4 @@
-from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
+from locust import HttpLocust, TaskSet, TaskSequence, seq_task
 from random import randrange
 
 
@@ -25,4 +25,3 @@ class MyTaskSequence(TaskSequence):
 
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
-    wait_time = between(1, 5)
