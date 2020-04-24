@@ -16,7 +16,7 @@ headers = {
 #/locust-tasks/
 
 #functions 
-with open('user_emails.txt','r') as file:
+with open('/locust-tasks/user_emails.txt','r') as file:
     user_emails = file.read().split(",")
 
 
