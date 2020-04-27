@@ -35,29 +35,20 @@ class MyTaskSequence(TaskSequence):
         response = self.client.post(url="/api/Account/Login", data=json.dumps(login_data), auth=None,headers=headers)
         cookies['.ASPXAUTH'] = response.cookies['.ASPXAUTH']
         cookies['LogId'] = response.cookies['LogId']
-        
+
     @seq_task(2)
-    def profile_funtoot(self):
-        response = self.client.get(url="/api/Account/GetProfile", auth=None,headers=headers, cookies=cookies)
-
-    @seq_task(3)
-    def get_usage_funtoot(self):
-        response = self.client.get(url="/api/Student/GetUsage", auth=None,headers=headers, cookies=cookies)
-
-    @seq_task(4)
     def get_syllabus_funtoot(self):
         response = self.client.get(url="/api/Syllabus/Get", auth=None,headers=headers, cookies=cookies)
         syllabus_data['data'] = response.json()['Content'][0]['Children'][0]['Children'][0]
 
-    @seq_task(5)
+    @seq_task(3)
     def get_problem_funtoot(self):
         response = self.client.post(url="/api/Problem/Generate", data=json.dumps(syllabus_data['data']), auth=None,headers=headers, cookies=cookies)
         answer_data['data'] = response.json()
 
-    @seq_task(6)
+    @seq_task(4)
     def get_solution_funtoot(self):
         response = self.client.post(url="/api/Problem/Evaluate", data=json.dumps(answer_data['data']), auth=None,headers=headers, cookies=cookies)
-        
 
 
 class WebsiteTest(HttpLocust):
