@@ -20,6 +20,12 @@ metadata:
   labels:
     app: locust-master
 spec:
+  containers:
+  - name: locust-master
+      resources:
+          requests:
+              memory: "2048Mi"
+              cpu: "1000m"
   ports:
     - port: 8089
       targetPort: loc-master-web
