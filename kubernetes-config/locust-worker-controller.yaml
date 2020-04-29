@@ -38,8 +38,3 @@ spec:
               value: locust-master
             - name: TARGET_HOST
               value: https://[TARGET_HOST]
-          containers:
-              resources:
-                  requests:
-                      memory: 1024Mi
-                      cpu: 400m
