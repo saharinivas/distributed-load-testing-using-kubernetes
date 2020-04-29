@@ -47,7 +47,3 @@ spec:
             - name: loc-master-p2
               containerPort: 5558
               protocol: TCP
-          resources:
-              requests:
-                  memory: "2048Mi"
-                  cpu: "1000m"
