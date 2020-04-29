@@ -41,5 +41,5 @@ spec:
           containers:
               resources:
                   requests:
-                      memory: "1024Mi"
-                      cpu: "400m"
+                      memory: 1024Mi
+                      cpu: 400m
