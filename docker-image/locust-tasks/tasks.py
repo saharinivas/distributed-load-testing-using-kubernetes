@@ -10,7 +10,7 @@ mocktest_bundle_path= "/mock-test/jee-main/full-test/predicted-jee-main-2019-apr
 
 
 #functions
-with open('email_password_embibe.csv', 'r') as csvfile:
+with open('/locust-tasks/email_password_embibe.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
