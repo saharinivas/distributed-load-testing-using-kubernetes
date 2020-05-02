@@ -10,7 +10,7 @@ mocktest_bundle_path= "/mock-test/jee-main/full-test/predicted-jee-main-2019-apr
 
 
 #functions
-with open('/locust-tasks/email_password_embibe.csv', 'r') as csvfile:
+with open('email_password_embibe.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
@@ -34,14 +34,14 @@ class MyTaskSequence(TaskSequence):
                     "password":email_password[rnum][1],
                     "password_confirmation":email_password[rnum][1]
                    }
-        response = self.client.post('/user_ms/auth/sign_in', data=json.dumps(login_data), headers=headers)
+        response = self.client.post('/user_ms_lt/auth/sign_in', data=json.dumps(login_data), headers=headers)
         headers ['embibe-token']= response.headers['embibe-token']
      
 
     @seq_task(2)
     def TestSelection(self):
       
-        response = self.client.get(url = "/content_ms/v2/mocktest-bundles/get-latest-version-meta?mocktest_bundle_path="+ mocktest_bundle_path,
+        response = self.client.get(url = "/content_ms_lt/v2/mocktest-bundles/get-latest-version-meta?mocktest_bundle_path="+ mocktest_bundle_path,
         headers=headers, data = body)
         
     @seq_task(3)
@@ -206,7 +206,6 @@ class MyTaskSequence(TaskSequence):
      
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
-        
 
                
               
