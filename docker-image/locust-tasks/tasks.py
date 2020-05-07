@@ -1,16 +1,13 @@
-from locust import HttpLocust, TaskSet, TaskSequence, seq_task
+from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
 from random import randrange
 import json
 import csv
 
-
 #constants
 email_password = []
-mocktest_bundle_path= "/mock-test/jee-main/full-test/predicted-jee-main-2019-april"
-
 
 #functions
-with open('/locust-tasks/email_password_embibe.csv', 'r') as csvfile:
+with open('email_password_embibe.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
@@ -34,178 +31,117 @@ class MyTaskSequence(TaskSequence):
                     "password":email_password[rnum][1],
                     "password_confirmation":email_password[rnum][1]
                    }
-        response = self.client.post('/user_ms_lt/auth/sign_in', data=json.dumps(login_data), headers=headers)
+        response = self.client.post(url = "/user_ms/auth/sign_in", data=json.dumps(login_data), headers=headers)
         headers ['embibe-token']= response.headers['embibe-token']
-     
-
+        headers ['browser-id']= '1587379640441'
+        
     @seq_task(2)
-    def TestSelection(self):
-      
-        response = self.client.get(url = "/content_ms_lt/v2/mocktest-bundles/get-latest-version-meta?mocktest_bundle_path="+ mocktest_bundle_path,
-        headers=headers, data = body)
+    def Initiating_Session(self):   
+
+        Initial_data = "{\"entityID\":\"null\",\"entityType\":\"primaryOrgId\",\"entityContext\":{\"namespace\":\"embibe\"},\"flagKey\":\"practice_taking\"}"
+        response = self.client.post(url = "/flagr/api/v1/evaluation/",name="Initiating_Session", data=Initial_data, headers=headers)
         
     @seq_task(3)
-    def StartTest(self):  
-        
-        response = self.client.get(url = "/testsubmission_ms/now", headers=headers, data = body)
-
-        global starttime
-        starttime = "".join(chr(x) for x in response.content)
-        
-    @seq_task(4)
-    def TestWindow(self):    
+    def Practice_Session(self):
     
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/session", headers=headers, data = body)
-        headers ['browser-id']= '1588163045400.5'
-    
-    @seq_task(5)
-    def TestSession(self):    
+  
+        PracticeTest_Data = "{\"type\":\"Normal\",\"legacy_session_id\":null,\"learning_map\":{\"exam_code\":\"ex4\",\"goal_code\":\"gl8\",\"subject_code\":null,\"unit_code\":null,\"chapter_code\":null,\"level\":\"exam\",\"goal_slug\":\"engineering\",\"code\":\"lm3\",\"filter_code\":\"\",\"bundle_code\":\"pb6\",\"bundle_version\":1,\"xpath\":\"/jee\"},\"language\":\"en\",\"namespace\":\"embibe\"}"
         
-        TestSession_data = '{"mocktest_session":{"goal_code":"engineering","t_started":'+starttime+'}}'
-        response = self.client.post(url = "/testsubmission_ms/v1/test/mb118/session", headers=headers, data = TestSession_data)
+        response = self.client.post(url = "/practice_ms/v1/practice/session/", name="Practice_Session",data=PracticeTest_Data, headers=headers)
         global session_id 
-        session_id = response.json().get("id","")
-      
-    @seq_task(6)
-    def TestQuestionCode(self):
-
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/questions", headers=headers, data = body)
-        
-    @seq_task(7)
-    def TestAnswer(self):
-            
-        TestAnswer_data= "[{\"eorder\":1,\"event_type\":\"load_paper\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588163054.363,\"question_code\":\"\"},{\"eorder\":2,\"event_type\":\"view_question\",\"sequence\":1,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163054.769,\"question_code\":\"EM0076224\"},{\"eorder\":3,\"event_type\":\"select_answer\",\"sequence\":1,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0076224-b\",\"t\":1588163060.747,\"question_code\":\"EM0076224\"},{\"eorder\":4,\"event_type\":\"save_attempt\",\"sequence\":1,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0076224-b\",\"t\":1588163062.573,\"question_code\":\"EM0076224\"},{\"eorder\":5,\"event_type\":\"view_question\",\"sequence\":2,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163062.574,\"question_code\":\"EM0079578\"},{\"eorder\":6,\"event_type\":\"select_answer\",\"sequence\":2,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0079578-d\",\"t\":1588163063.3915,\"question_code\":\"EM0079578\"},{\"eorder\":7,\"event_type\":\"save_attempt\",\"sequence\":2,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0079578-d\",\"t\":1588163064.1645,\"question_code\":\"EM0079578\"},{\"eorder\":8,\"event_type\":\"view_question\",\"sequence\":3,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163064.1665,\"question_code\":\"EM0017239\"},{\"eorder\":9,\"event_type\":\"select_answer\",\"sequence\":3,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0017239-d\",\"t\":1588163064.8975,\"question_code\":\"EM0017239\"},{\"eorder\":10,\"event_type\":\"save_attempt\",\"sequence\":3,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0017239-d\",\"t\":1588163065.4985,\"question_code\":\"EM0017239\"},{\"eorder\":11,\"event_type\":\"view_question\",\"sequence\":4,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163065.5005,\"question_code\":\"EM0131889\"},{\"eorder\":12,\"event_type\":\"select_answer\",\"sequence\":4,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0131889-c\",\"t\":1588163066.0635,\"question_code\":\"EM0131889\"},{\"eorder\":13,\"event_type\":\"save_attempt\",\"sequence\":4,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0131889-c\",\"t\":1588163066.6655,\"question_code\":\"EM0131889\"},{\"eorder\":14,\"event_type\":\"view_question\",\"sequence\":5,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163066.6665,\"question_code\":\"EM0040436\"},{\"eorder\":15,\"event_type\":\"select_answer\",\"sequence\":5,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0040436-d\",\"t\":1588163067.1775,\"question_code\":\"EM0040436\"},{\"eorder\":16,\"event_type\":\"save_attempt\",\"sequence\":5,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0040436-d\",\"t\":1588163067.6725,\"question_code\":\"EM0040436\"},{\"eorder\":17,\"event_type\":\"view_question\",\"sequence\":6,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163067.6745,\"question_code\":\"EM0006429\"},{\"eorder\":18,\"event_type\":\"select_answer\",\"sequence\":6,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0006429-c\",\"t\":1588163068.2625,\"question_code\":\"EM0006429\"},{\"eorder\":19,\"event_type\":\"save_attempt\",\"sequence\":6,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"EM0006429-c\",\"t\":1588163068.9175,\"question_code\":\"EM0006429\"},{\"eorder\":20,\"event_type\":\"view_question\",\"sequence\":7,\"sent\":false,\"section\":\"ms41\",\"event_info\":\"\",\"t\":1588163068.9195,\"question_code\":\"EM0016877\"}]"
-        
-        response = self.client.post(url = f"/testsubmission_ms/v1/test/{session_id}/events",name ="test_answer", headers=headers, data = TestAnswer_data)
-        
-    @seq_task(8)
-    def TestResume(self):   
-    
-        response = self.client.post(url = "/testsubmission_ms/v1/test/mb118/resume", headers=headers, data = body)
-        
-    @seq_task(9)
-    def TestCheck(self):
-    
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/check", headers=headers, data = body)
-
-        
-    @seq_task(10)
-    def TestEvent(self):
-    
-        TestEvent_data = "[{\"eorder\":6,\"event_type\":\"user_active\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588430261.484,\"question_code\":\"\"},{\"eorder\":7,\"event_type\":\"select_answer\",\"sequence\":1,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0131893-b\",\"t\":1588430262.243,\"question_code\":\"EM0131893\"},{\"eorder\":8,\"event_type\":\"save_attempt\",\"sequence\":1,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0131893-b\",\"t\":1588430264.2805,\"question_code\":\"EM0131893\"},{\"eorder\":9,\"event_type\":\"view_question\",\"sequence\":2,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430264.2815,\"question_code\":\"EM0132079\"},{\"eorder\":10,\"event_type\":\"select_answer\",\"sequence\":2,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0132079-d\",\"t\":1588430265.8865,\"question_code\":\"EM0132079\"},{\"eorder\":11,\"event_type\":\"save_attempt\",\"sequence\":2,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0132079-d\",\"t\":1588430267.7745,\"question_code\":\"EM0132079\"},{\"eorder\":12,\"event_type\":\"view_question\",\"sequence\":3,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430267.7755,\"question_code\":\"EM0017321\"},{\"eorder\":13,\"event_type\":\"select_answer\",\"sequence\":3,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0017321-b\",\"t\":1588430268.8505,\"question_code\":\"EM0017321\"},{\"eorder\":14,\"event_type\":\"save_attempt\",\"sequence\":3,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0017321-b\",\"t\":1588430269.8185,\"question_code\":\"EM0017321\"},{\"eorder\":15,\"event_type\":\"view_question\",\"sequence\":4,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430269.8195,\"question_code\":\"EM0132187\"}]"
-        
-        response = self.client.post(url = f"/testsubmission_ms/v1/test/{session_id}/events", name="test_event", headers=headers, data = TestEvent_data)
-
-        
-    @seq_task(11)
-    def TestEvent1(self):
-    
-        TestEvent1_data = "[{\"eorder\":19,\"event_type\":\"save_attempt\",\"sequence\":5,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430294.1555,\"question_code\":\"EM0131900\"},{\"eorder\":20,\"event_type\":\"view_question\",\"sequence\":6,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430294.1565,\"question_code\":\"EM0016143\"},{\"eorder\":21,\"event_type\":\"select_answer\",\"sequence\":6,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0016143-c\",\"t\":1588430295.1745,\"question_code\":\"EM0016143\"},{\"eorder\":22,\"event_type\":\"save_attempt\",\"sequence\":6,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"EM0016143-c\",\"t\":1588430296.1545,\"question_code\":\"EM0016143\"},{\"eorder\":23,\"event_type\":\"view_question\",\"sequence\":7,\"sent\":false,\"section\":\"ms1255\",\"event_info\":\"\",\"t\":1588430296.1545,\"question_code\":\"EM0131903\"}]"
-        response = self.client.post(url = f"/testsubmission_ms/v1/test/{session_id}/events",name ="test_event1",headers=headers, data = TestEvent1_data)
-
-        
-    @seq_task(12)
-    def TestEventFreeze(self):
-    
-        TestEventFreeze_data = "[{\"eorder\":24,\"event_type\":\"freeze\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588430329.112,\"question_code\":\"\"}]"
-        response = self.client.post(url = f"/testsubmission_ms/v1/test/{session_id}/events",name = "TestEventFreeze" ,headers=headers, data = TestEventFreeze_data)
-
-        
-    @seq_task(13)
-    def TestSubmission(self):
-    
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/session", headers=headers, data = body)
-
-        
-    @seq_task(14)
-    def TestSummary(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/summary", name = "TestSummary" ,headers=headers, data = body)
+        session_id = response.json().get("session_id","")
         global user_id
         user_id = response.json()["userId"]
         
+    @seq_task(4)
+    def Practice_Questions(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?", name = "Practice_Questions",data = body,headers=headers)
+        
+    @seq_task(5)
+    def Practice_Summary(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/summary", name = "Practice_Summary",data = body,headers=headers)
+        
+    @seq_task(6)
+    def EffortRating(self):
+    
+        response = self.client.get(url = f"/dsl/er_ms/effort-rating/session/{session_id}", name = "EffortRating",data = body,headers=headers)
+        
+    @seq_task(7)
+    def Skills(self):
+    
+        Skills_data= "{\"question_codes\":[]}"
+    
+        response = self.client.post(url ="/content_ms/v2/questions/skills", name = "Skills",data = Skills_data,headers=headers)
+        
+    @seq_task(8)
+    def QuestionCode(self):
+    
+        response = self.client.get(url ="/content_ms/v2/questions/kt-data?question_code=EM0025943", name = "QuestionCode",data = body,headers=headers)
+        
+    @seq_task(9)
+    def Behavior(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/behavior", name = "Behavior",data = body,headers=headers)
+        
+    @seq_task(10)
+    def Strength(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/strength", name = "Strength",data = body,headers=headers)
+        
+    @seq_task(11)
+    def SessionPack_Recommendation(self):
+    
+        response = self.client.get(url = "/horizontal_ms/v1/embibe/en/session-pack-recommendation?exam_code=ex4&goal_code=gl8&learning_map=%7B%22chapter_name%22:null,%22goal_code%22:%22gl8%22,%22exam_name%22:%22JEE+Main%22,%22goal_name%22:%22Engineering%22,%22namespace%22:%22embibe%22,%22subject_name%22:null,%22unit_name%22:null,%22exam_code%22:%22ex4%22,%22level%22:%22exam%22,%22code%22:%22lm3%22,%22current_mean_dl%22:1,%22bundle_code%22:%22pb6%22,%22filter_code%22:%22%22,%22bundle_version%22:1,%22type%22:%22Normal%22%7D&attempt_count=0&perfect_count=0&wasted_count=0&overtime_count=0&otc_count=0&oti_count=0", name = "SessionPack_Recommendation",data = body,headers=headers)
+     
+    @seq_task(12)
+    def Session_Check(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/session/{session_id}/check", name = "Session_Check",data = body,headers=headers)
+        
+    @seq_task(13)
+    def Embibe_Guide(self):
+    
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/embibeGuide", name = "Embibe_Guide",data = body,headers=headers)
+        
+    @seq_task(14)
+    def Events(self):
+    
+        Events_data= "[{\"eorder\":1,\"event_type\":\"start_session\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588593424.909,\"question_code\":\"\"},{\"eorder\":2,\"event_type\":\"start_session\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588593431.2695,\"question_code\":\"\"}]"
+    
+        response = self.client.post(url = f"/practice_ms/v1/practice/{session_id}/events", name = "Events",data = Events_data,headers=headers)
         
     @seq_task(15)
-    def ExamSubmit(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/behaviour?examCode=ex4&level=exam&levelCode=ex4",name = "exam_submit" ,headers=headers, data = body)
-
+    def QuestionCode_Statistics(self):
+              
+        response = self.client.get(url = "/horizontal_ms/v1/embibe/en/question-statistics?question_code=EM0025943&exam_code=ex4", name = "QuestionCode_Statistics",data = body,headers=headers)
         
     @seq_task(16)
-    def ExamQuestions(self):
-    
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/questions", headers=headers, data = body)
-
+    def Practice_Questions(self):
+              
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question/EM0025943?version=14&namespace=embibe&language=en", name = "Practice_Questions",data = body,headers=headers)
         
     @seq_task(17)
-    def TopPerformer(self):
-    
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/topPerformers", headers=headers, data = body)
-
+    def Question_Hint(self):
+              
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?", name = "Question_Hint",data = body,headers=headers)
         
     @seq_task(18)
-    def TestSubmission1(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/timeSpent/summary?timeIntervalInMins=10",name = "TestSubmission1", headers=headers, data = body)
-
+    def Question_Pagination(self):
+              
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/questions?page=1&pageSize=20", name = "Question_Pagination",data = body,headers=headers)
         
     @seq_task(19)
-    def ChatMessages(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/chatMessages/history?page=1&pageSize=50", name = "ChatMessages", headers=headers, data = body)
- 
+    def Skip_Question(self):
+              
+        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?skipQuestion=true&difficultyLevel=1", name = "Skip_Question",data = body,headers=headers)
         
-    @seq_task(20)
-    def TimeSpent(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/timeSpent/summary?timeIntervalInMins=180", name = "TimeSpent", headers=headers, data = body)
-
-        
-    @seq_task(21)
-    def TestSummary1(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/concept/summary", name = "TestSummary1",headers=headers, data = body)
-
-        
-    @seq_task(22)
-    def ChapterSummary1(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/chapter/summary",name = "ChapterSummary1", headers=headers, data = body)
-
-        
-    @seq_task(23)
-    def TrueScore(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/mb118/trueScore", headers=headers, data = body)
-
-        
-    @seq_task(24)
-    def Trend(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/test/{session_id}/trend",name = "Trend", headers=headers, data = body)
-
-        
-    @seq_task(25)
-    def UserRank(self):
-    
-        response = self.client.get(url = f"/testsubmission_ms/v1/mocktest-ranks/get-user-rank?user_id={user_id}&testCode=mb118", name = "UserRank",headers=headers, data = body)
-
-        
-    @seq_task(26)
-    def SocialAccuracy(self):
-    
-        response = self.client.get(url = "/testsubmission_ms/v1/test/mb118/socialAccuracy", headers=headers, data = body)
-
-        
-    @seq_task(27)
-    def chatmessages1(self):
-    
-        chat_data = "{\"context\":null,\"intent\":\"FirstGreet\",\"update\":null}"
-        response = self.client.post(url = f"/testsubmission_ms/v1/test/{session_id}/chatMessages", name = "chatmessages1", headers=headers, data = chat_data)
-
      
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
+    wait_time = between(0.5, 5.0)
+        
 
                
               
