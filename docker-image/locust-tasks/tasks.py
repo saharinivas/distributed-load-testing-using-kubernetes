@@ -1,4 +1,4 @@
-from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
+from locust import HttpLocust, TaskSet, TaskSequence, seq_task
 from random import randrange
 import json
 import csv
@@ -7,7 +7,7 @@ import csv
 email_password = []
 
 #functions
-with open('email_password_embibe.csv', 'r') as csvfile:
+with open('/locust-tasks/email_password_embibe.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
@@ -140,7 +140,7 @@ class MyTaskSequence(TaskSequence):
      
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
-    wait_time = between(0.5, 5.0)
+
         
 
                
