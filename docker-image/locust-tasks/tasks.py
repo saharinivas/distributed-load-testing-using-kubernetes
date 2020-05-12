@@ -5,6 +5,8 @@ import csv
 
 #constants
 email_password = []
+mocktest_bundle_path= "/mock-test/jee-main/full-test/predicted-jee-main-2019-april"
+
 
 #functions
 with open('/locust-tasks/email_password_embibe.csv', 'r') as csvfile:
@@ -31,119 +33,130 @@ class MyTaskSequence(TaskSequence):
                     "password":email_password[rnum][1],
                     "password_confirmation":email_password[rnum][1]
                    }
-        response = self.client.post(url = "/user_ms/auth/sign_in", data=json.dumps(login_data), headers=headers)
+        response = self.client.post(url = "/user_ms/auth/sign_in",name="Login",data=json.dumps(login_data), headers=headers)
         headers ['embibe-token']= response.headers['embibe-token']
-        headers ['browser-id']= '1587379640441'
         
     @seq_task(2)
-    def Initiating_Session(self):   
+    def Search_Request(self):   
 
-        Initial_data = "{\"entityID\":\"null\",\"entityType\":\"primaryOrgId\",\"entityContext\":{\"namespace\":\"embibe\"},\"flagKey\":\"practice_taking\"}"
-        response = self.client.post(url = "/flagr/api/v1/evaluation/",name="Initiating_Session", data=Initial_data, headers=headers)
+        response = self.client.get(url = "/ask/v1/search?query=&size=10&start=0",name="Search_Request", data=body, headers=headers)
         
     @seq_task(3)
-    def Practice_Session(self):
-    
-  
-        PracticeTest_Data = "{\"type\":\"Normal\",\"legacy_session_id\":null,\"learning_map\":{\"exam_code\":\"ex4\",\"goal_code\":\"gl8\",\"subject_code\":null,\"unit_code\":null,\"chapter_code\":null,\"level\":\"exam\",\"goal_slug\":\"engineering\",\"code\":\"lm3\",\"filter_code\":\"\",\"bundle_code\":\"pb6\",\"bundle_version\":1,\"xpath\":\"/jee\"},\"language\":\"en\",\"namespace\":\"embibe\"}"
-        
-        response = self.client.post(url = "/practice_ms/v1/practice/session/", name="Practice_Session",data=PracticeTest_Data, headers=headers)
-        global session_id 
-        session_id = response.json().get("session_id","")
-        global user_id
-        user_id = response.json()["userId"]
+    def Search_AutoComplete(self):   
+
+        response = self.client.get(url = "/ask/v1/autocomplete?query_prefix=as",name="Search_AutoComplete", data=body, headers=headers)
         
     @seq_task(4)
-    def Practice_Questions(self):
-    
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?", name = "Practice_Questions",data = body,headers=headers)
+    def Create_Question(self):
+       
+        question_data= "{\"text\":\"Creating Question\",\"title\":\"Questionu0021\",\"tag\":{},\"ocrUrls\":[]}"
+
+        response = self.client.post(url = "/ask/v1/question",name="Create_Question", data=question_data, headers=headers)
+        global question_id 
+        question_id = response.json().get("questionId","")
         
     @seq_task(5)
-    def Practice_Summary(self):
+    def Edit_Question(self):
     
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/summary", name = "Practice_Summary",data = body,headers=headers)
+        editquestion_data= "{\"text\":\"Editing Question\",\"title\":\"Questionu0021\"}"
+
+        response = self.client.put(url = f"/ask/v1/question/{question_id}",name="Edit_Question", data=editquestion_data, headers=headers)
         
     @seq_task(6)
-    def EffortRating(self):
-    
-        response = self.client.get(url = f"/dsl/er_ms/effort-rating/session/{session_id}", name = "EffortRating",data = body,headers=headers)
+    def My_Question(self):   
+
+        response = self.client.get(url = "/ask/v1/questions/my-questions?limit=10&offset=0",name="My_Question", data=body, headers=headers)
         
     @seq_task(7)
-    def Skills(self):
-    
-        Skills_data= "{\"question_codes\":[]}"
-    
-        response = self.client.post(url ="/content_ms/v2/questions/skills", name = "Skills",data = Skills_data,headers=headers)
+    def Get_Question(self):   
+
+        response = self.client.get(url = f"/ask/v1/questions?ids={question_id}",name="Get_Question", data=body, headers=headers)
         
     @seq_task(8)
-    def QuestionCode(self):
-    
-        response = self.client.get(url ="/content_ms/v2/questions/kt-data?question_code=EM0025943", name = "QuestionCode",data = body,headers=headers)
+    def View_Question(self):   
+
+        response = self.client.post(url = f"/ask/v1/question/{question_id}/view",name="View_Question", data=body, headers=headers)
         
     @seq_task(9)
-    def Behavior(self):
-    
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/behavior", name = "Behavior",data = body,headers=headers)
+    def Like_Question(self):   
+
+        response = self.client.post(url = f"/ask/v1/question/{question_id}/like",name="Like_Question", data=body, headers=headers)
         
     @seq_task(10)
-    def Strength(self):
-    
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/strength", name = "Strength",data = body,headers=headers)
+    def UnLike_Question(self):   
+
+        response = self.client.post(url = f"/ask/v1/question/{question_id}/unlike",name="UnLike_Question", data=body, headers=headers)
         
     @seq_task(11)
-    def SessionPack_Recommendation(self):
-    
-        response = self.client.get(url = "/horizontal_ms/v1/embibe/en/session-pack-recommendation?exam_code=ex4&goal_code=gl8&learning_map=%7B%22chapter_name%22:null,%22goal_code%22:%22gl8%22,%22exam_name%22:%22JEE+Main%22,%22goal_name%22:%22Engineering%22,%22namespace%22:%22embibe%22,%22subject_name%22:null,%22unit_name%22:null,%22exam_code%22:%22ex4%22,%22level%22:%22exam%22,%22code%22:%22lm3%22,%22current_mean_dl%22:1,%22bundle_code%22:%22pb6%22,%22filter_code%22:%22%22,%22bundle_version%22:1,%22type%22:%22Normal%22%7D&attempt_count=0&perfect_count=0&wasted_count=0&overtime_count=0&otc_count=0&oti_count=0", name = "SessionPack_Recommendation",data = body,headers=headers)
-     
+    def Bookmark_Question(self):   
+
+        response = self.client.post(url = f"/ask/v1/question/{question_id}/bookmark",name="Bookmark_Question", data=body, headers=headers)
+        
     @seq_task(12)
-    def Session_Check(self):
-    
-        response = self.client.get(url = f"/practice_ms/v1/practice/session/{session_id}/check", name = "Session_Check",data = body,headers=headers)
+    def Delete_Question(self):   
+
+        response = self.client.delete(url = f"/ask/v1/question/{question_id}",name="Delete_Question", data=body, headers=headers)
         
     @seq_task(13)
-    def Embibe_Guide(self):
+    def Create_Answer(self):
     
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/embibeGuide", name = "Embibe_Guide",data = body,headers=headers)
+        createanswer_data="{\"questionId\":\"5eb4fbf177f78f27bbc13405\",\"text\":\"Answer2\"}"
+
+        response = self.client.post(url = "/ask/v1/answer",name="Create_Answer", data=createanswer_data, headers=headers)
+        global answer_id 
+        answer_id = response.json().get("answerId","")
         
     @seq_task(14)
-    def Events(self):
-    
-        Events_data= "[{\"eorder\":1,\"event_type\":\"start_session\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588593424.909,\"question_code\":\"\"},{\"eorder\":2,\"event_type\":\"start_session\",\"sequence\":\"\",\"sent\":false,\"section\":\"\",\"event_info\":\"\",\"t\":1588593431.2695,\"question_code\":\"\"}]"
-    
-        response = self.client.post(url = f"/practice_ms/v1/practice/{session_id}/events", name = "Events",data = Events_data,headers=headers)
+    def Get_Answer(self):   
+
+        response = self.client.get(url = "/ask/v1/answer?limit=10&offset=0&questionId=5eb4fbf177f78f27bbc13405",name="Get_Answer", data=body, headers=headers)
         
     @seq_task(15)
-    def QuestionCode_Statistics(self):
-              
-        response = self.client.get(url = "/horizontal_ms/v1/embibe/en/question-statistics?question_code=EM0025943&exam_code=ex4", name = "QuestionCode_Statistics",data = body,headers=headers)
+    def Edit_Answer(self):
+    
+        editanswer_data = "{\"text\":\"Answer2Edit\",\"questionId\":\"5eb4fbf177f78f27bbc13405\"}"
+
+        response = self.client.put(url = f"/ask/v1/answer/{answer_id}",name="Edit_Answer", data=editanswer_data, headers=headers)
         
     @seq_task(16)
-    def Practice_Questions(self):
-              
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question/EM0025943?version=14&namespace=embibe&language=en", name = "Practice_Questions",data = body,headers=headers)
+    def Like_Answer(self):
+
+        response = self.client.post(url = f"/ask/v1/answer/{answer_id}/like",name="Like_Answer", data=body, headers=headers)
         
     @seq_task(17)
-    def Question_Hint(self):
-              
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?", name = "Question_Hint",data = body,headers=headers)
+    def UnLike_Answer(self):
+
+        response = self.client.post(url = f"/ask/v1/answer/{answer_id}/unlike",name="UnLike_Answer", data=body, headers=headers)
         
     @seq_task(18)
-    def Question_Pagination(self):
-              
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/questions?page=1&pageSize=20", name = "Question_Pagination",data = body,headers=headers)
+    def Helpful_Answer(self):
+
+        response = self.client.post(url = f"/ask/v1/answer/{answer_id}/helpful",name="Helpful_Answer", data=body, headers=headers)
         
     @seq_task(19)
-    def Skip_Question(self):
-              
-        response = self.client.get(url = f"/practice_ms/v1/practice/{session_id}/question?skipQuestion=true&difficultyLevel=1", name = "Skip_Question",data = body,headers=headers)
+    def Mine_Answer(self):   
+
+        response = self.client.get(url = "/ask/v1/answers/my-answers?limit=10&offset=0",name="Mine_Answer", data=body, headers=headers)
         
+    @seq_task(20)
+    def Delete_Answer(self):   
+
+        response = self.client.delete(url = f"/ask/v1/answer/{answer_id}",name="Delete_Answer", data=body, headers=headers)
+        
+    @seq_task(21)
+    def Spam_Detect(self):
+    
+        spam_data="{\"text\":\"Questionu0021Creating Question\"}"
+    
+        response = self.client.post(url = "/ask/v1/spam",name="Spam_Detect", data=spam_data, headers=headers)
+        
+    @seq_task(22)
+    def Smart_Tagging(self):
+    
+        smarttag_data="{\"goal\":\"engineering\",\"text\":\"Creating Question\"}"
+    
+        response = self.client.post(url = "/ask/v1/spam",name="Smart_Tagging", data=smarttag_data, headers=headers)
+      
      
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
-
-        
-
-               
-              
-        
-
