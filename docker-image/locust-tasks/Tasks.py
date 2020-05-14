@@ -5,7 +5,6 @@ import csv
 import random
 import string
 
-
 #constants
 def string_generator(size):
     chars = string.ascii_uppercase + string.ascii_lowercase
@@ -198,15 +197,7 @@ class MyTaskSequence(TaskSequence):
                     }
                     
         response = self.client.post(url = "/addUser",name="add_user",data=json.dumps(user_data), headers=headers)
-     
-        
+       
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
     
-
-        
-
-               
-              
-        
-
