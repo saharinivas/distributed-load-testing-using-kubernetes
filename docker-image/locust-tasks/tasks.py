@@ -15,7 +15,7 @@ res = []
 Params = []
 
 #functions
-with open('\locusts-tasks\JIO_Params.csv', 'r') as csvfile:
+with open('\locust-tasks\JIO_Params.csv', 'r') as csvfile:
         Params = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
