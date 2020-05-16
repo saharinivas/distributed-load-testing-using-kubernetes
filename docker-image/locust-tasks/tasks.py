@@ -1,4 +1,4 @@
-from locust import HttpLocust, TaskSet, TaskSequence, seq_task, between
+from locust import HttpLocust, TaskSet, TaskSequence, seq_task
 from random import randrange
 from random import randint
 import json
@@ -15,7 +15,7 @@ res = []
 Params = []
 
 #functions
-with open('JIO_Params.csv', 'r') as csvfile:
+with open('\locusts-tasks\JIO_Params.csv', 'r') as csvfile:
         Params = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
@@ -337,4 +337,3 @@ class MyTaskSequence(TaskSequence):
        
 class WebsiteTest(HttpLocust):
     task_set = MyTaskSequence
-    wait_time = between(0.5, 3.0)
