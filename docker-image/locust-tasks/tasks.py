@@ -9,7 +9,7 @@ code={'code':''}
 exam_code={'exam_code':''}
 
 #functions
-with open('\locusts-tasks\dummy.csv', 'r') as csvfile:
+with open('\locust-tasks\dummy.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
