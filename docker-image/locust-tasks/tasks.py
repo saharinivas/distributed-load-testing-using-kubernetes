@@ -8,8 +8,8 @@ global_searches = []
 fiber_searches = []
 
 #functions
-with open('/locust-tasks/globalsearch_queries.csv','r') as file:
-    global_searches = file.read().split(",")
+#with open('/locust-tasks/globalsearch_queries.csv','r') as file:
+    #global_searches = file.read().split(",")
     
 with open('/locust-tasks/fibersearch_queries.csv','r') as file:
     fiber_searches = file.read().split(",")
