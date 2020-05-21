@@ -7,7 +7,7 @@ import csv
 email_password = []
 
 #functions
-with open('/locust-tasks/dummy.csv', 'r') as csvfile:
+with open('/locust-tasks/Dummy.csv', 'r') as csvfile:
         email_password = list (csv.reader(csvfile, delimiter=','))
 
 #Declarations
