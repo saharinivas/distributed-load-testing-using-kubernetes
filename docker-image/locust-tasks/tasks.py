@@ -18,20 +18,15 @@ headers = {
 body = {}
 
 class MyTaskSequence(TaskSequence):
-
+  
     @seq_task(1)
-    def Healthcheck(self):
-    
-        response = self.client.get(url = "/healthcheck",name="Healthcheck",data=body, headers=headers)
-       
-    @seq_task(2)
     def GetPercentageConnections(self):
     
         grade = random.randint(1,12)
     
         response = self.client.get(url = f"/percentage-connections/?grade={grade}&goal=CBSE",name="GetPercentageConnections",data=body, headers=headers)
         
-    @seq_task(3)
+    @seq_task(2)
     def GetKeyRelations(self):
     
         fromgrade = random.randint(1,6)
