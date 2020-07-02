@@ -39,6 +39,6 @@ class UserBehaviour(HttpUser):
     
          
         response = self.client.post(url = "/user_auth/mobile/sandwich_app/login",name="Login",data=payload, headers=headers,files=files)
-         if (response.status_code!=200):
+        if (response.status_code!=200):
                 print(response.content)
 
