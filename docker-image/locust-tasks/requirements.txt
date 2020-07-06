@@ -10,7 +10,6 @@ Jinja2==2.10.1
 locust==1.0.3
 MarkupSafe==1.1.1
 msgpack==0.6.2
-msgpack-python==0.5.6
 pyzmq==18.0.1
 requests==2.21.0
 six==1.12.0
