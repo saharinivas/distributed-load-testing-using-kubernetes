@@ -26,12 +26,6 @@ with open('/locust-tasks/JIO_Params.csv', 'r') as csvfile:
 
 
 #Declarations
-headers = {
-    'Content-Type':'application/json',
-    'connection':'keep-alive',
-    'Accept-Encoding':'gzip, deflate, br',
-    'Accept':'*/*'
-}
      
 #Payload Values       
 body = {}
